@@ -105,24 +105,20 @@ export class IssuesClient extends BaseClient {
   /**
    * Update an existing issue
    *
+   * Redmine returns 204 No Content (empty body) on a successful PUT,
+   * unlike POST (create), which returns the created issue. There is no
+   * issue body to parse here — attempting to do so throws a schema
+   * validation error on every call. See deleteIssue() for the same
+   * empty-response pattern.
+   *
    * @param id Issue ID to update
    * @param issue Update parameters
-   * @returns Promise with updated issue
    */
-  async updateIssue(
-    id: number,
-    issue: RedmineIssueUpdate
-  ): Promise<{ issue: RedmineIssue }> {
-    const response = await this.performRequest<{ issue: RedmineIssue }>(
-      `issues/${id}.json`,
-      {
-        method: "PUT",
-        body: JSON.stringify({ issue }),
-      }
-    );
-    return {
-      issue: RedmineIssueSchema.parse(response.issue),
-    };
+  async updateIssue(id: number, issue: RedmineIssueUpdate): Promise<void> {
+    await this.performRequest(`issues/${id}.json`, {
+      method: "PUT",
+      body: JSON.stringify({ issue }),
+    });
   }
 
   /**
