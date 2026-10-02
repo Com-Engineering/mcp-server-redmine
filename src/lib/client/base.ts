@@ -59,30 +59,7 @@ export class BaseClient {
 
       // エラーレスポンスの場合の処理
       if (!response.ok) {
-        let errorMessages: string[];
-        const contentType = response.headers.get("content-type");
-        // まずレスポンスボディをテキストとして一度だけ読み込む
-        const responseText = await response.text(); // ★ 変更点: 先にtext()で読む
-
-        if (contentType?.includes("application/json")) {
-          try {
-            // 読み込んだテキストをJSONとしてパース試行
-            const errorResponse = JSON.parse(responseText) as RedmineErrorResponse; // ★ 変更点: response.json()ではなくresponseTextをパース
-            errorMessages = errorResponse.errors || ["Unknown error"];
-          } catch (e) {
-            // JSONパースに失敗した場合、テキストをそのままエラーメッセージとする
-            errorMessages = [`Failed to parse error response as JSON: ${responseText || "Empty response"}`];
-          }
-        } else {
-          // JSONでない場合はテキストをそのままエラーメッセージとする
-          errorMessages = [responseText || "Unknown error"];
-        }
-
-        throw new RedmineApiError(
-          response.status,
-          response.statusText,
-          errorMessages
-        );
+        throw await this.createApiError(response);
       }
 
       // 204 No Content
@@ -112,6 +89,75 @@ export class BaseClient {
         [(error as Error).message]
       );
     }
+  }
+
+  /**
+   * Redmineからバイナリ（添付ファイル等）を取得
+   * URLは必ずREDMINE_HOSTを基準に組み立てる（APIキーを他ホストへ送らないため）
+   */
+  protected async performBinaryRequest(
+    path: string
+  ): Promise<{ data: Buffer; contentType: string | null }> {
+    const url = new URL(path, config.redmine.host);
+
+    try {
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'X-Redmine-API-Key': config.redmine.apiKey,
+          Accept: "*/*",
+        },
+      });
+
+      if (!response.ok) {
+        throw await this.createApiError(response);
+      }
+
+      return {
+        data: Buffer.from(await response.arrayBuffer()),
+        contentType: response.headers.get("content-type"),
+      };
+    } catch (error) {
+      // ネットワークエラー等のfetch自体のエラー
+      if (error instanceof RedmineApiError) {
+        throw error;
+      }
+      throw new RedmineApiError(
+        0,
+        "Network Error",
+        [(error as Error).message]
+      );
+    }
+  }
+
+  /**
+   * エラーレスポンスからRedmineApiErrorを生成
+   */
+  private async createApiError(response: Response): Promise<RedmineApiError> {
+    let errorMessages: string[];
+    const contentType = response.headers.get("content-type");
+    // まずレスポンスボディをテキストとして一度だけ読み込む
+    const responseText = await response.text();
+
+    if (contentType?.includes("application/json")) {
+      try {
+        // 読み込んだテキストをJSONとしてパース試行
+        const errorResponse = JSON.parse(responseText) as RedmineErrorResponse;
+        errorMessages = errorResponse.errors || ["Unknown error"];
+      } catch (e) {
+        // JSONパースに失敗した場合、テキストをそのままエラーメッセージとする
+        errorMessages = [`Failed to parse error response as JSON: ${responseText || "Empty response"}`];
+      }
+    } else {
+      // JSONでない場合はテキストをそのままエラーメッセージとする
+      errorMessages = [responseText || "Unknown error"];
+    }
+
+    return new RedmineApiError(
+      response.status,
+      response.statusText,
+      errorMessages
+    );
   }
 
   /**

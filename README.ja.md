@@ -49,6 +49,14 @@ Redmine REST API の Stable なリソースに対応しています：
   - カスタムフィールド対応
 - 作業時間の削除
 
+#### 添付ファイル関連
+
+- 画像添付ファイルの取得（`get_attachment`）
+  - 画像そのものを返すため、チケットに貼られたスクリーンショットを LLM が読み取れる
+  - 添付ファイル ID は `get_issue` に `include=attachments` を指定して確認
+  - PNG / JPEG / GIF / WebP（3.5MB まで）に対応。それ以外のファイルはエラーを返す
+  - 画像コンテンツに対応した MCP クライアント（Claude Desktop、Claude Code など）が必要
+
 ## Claude での利用
 
 Claude でこのサーバーを利用する場合、以下のような設定を行います：

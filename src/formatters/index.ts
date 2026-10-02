@@ -27,3 +27,7 @@ export {
   formatUserResult,
   formatUserDeleted,
 } from "./users.js";
+
+export {
+  formatAttachment,
+} from "./attachments.js";

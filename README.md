@@ -53,6 +53,14 @@ Supports stable resources from Redmine REST API:
   - Custom field support
 - Delete Time Entries
 
+#### Attachments
+
+- Get Image Attachments (`get_attachment`)
+  - Returns the image itself so the LLM can view screenshots attached to issues
+  - Find attachment IDs with `get_issue` using `include=attachments`
+  - Supports PNG, JPEG, GIF and WebP up to 3.5MB; other files are rejected
+  - Requires an MCP client that supports image content (e.g. Claude Desktop, Claude Code)
+
 ## Usage with Claude
 
 To use this server with Claude, configure it as follows:

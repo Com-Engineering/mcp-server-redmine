@@ -1,4 +1,4 @@
-import type { RedmineApiResponse, RedmineIssue } from "../lib/types/index.js";
+import type { RedmineApiResponse, RedmineAttachment, RedmineIssue } from "../lib/types/index.js";
 
 /**
  * Escape XML special characters
@@ -65,6 +65,25 @@ function formatJournals(journals: Array<{
 }
 
 /**
+ * Format attachments (metadata only; use get_attachment to view image content)
+ */
+function formatAttachments(attachments: RedmineAttachment[]) {
+  return `
+  <attachments>
+    ${attachments.map(attachment => `
+    <attachment>
+      <id>${attachment.id}</id>
+      <filename>${escapeXml(attachment.filename)}</filename>
+      <filesize>${attachment.filesize}</filesize>
+      ${attachment.content_type ? `<content_type>${escapeXml(attachment.content_type)}</content_type>` : ''}
+      ${attachment.description ? `<description>${escapeXml(attachment.description)}</description>` : ''}
+      ${attachment.author ? `<author>${escapeXml(attachment.author.name)}</author>` : ''}
+      ${attachment.created_on ? `<created_on>${attachment.created_on}</created_on>` : ''}
+    </attachment>`).join('')}
+  </attachments>`;
+}
+
+/**
  * Format a single issue
  */
 export function formatIssue(issue: RedmineIssue): string {
@@ -90,6 +109,7 @@ export function formatIssue(issue: RedmineIssue): string {
   ${safeDescription ? `<description>${safeDescription}</description>` : ''}
   ${issue.custom_fields?.length ? formatCustomFields(issue.custom_fields) : ''}
   ${issue.journals?.length ? formatJournals(issue.journals) : ''}
+  ${issue.attachments?.length ? formatAttachments(issue.attachments) : ''}
   ${issue.created_on ? `<created_on>${issue.created_on}</created_on>` : ''}
   ${issue.updated_on ? `<updated_on>${issue.updated_on}</updated_on>` : ''}
   ${issue.closed_on ? `<closed_on>${issue.closed_on}</closed_on>` : ''}

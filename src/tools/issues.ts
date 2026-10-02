@@ -368,6 +368,7 @@ export const ISSUE_GET_TOOL: Tool = {
   description:
     "Get a specific issue by its ID. " +
     "Returns detailed information about the issue. " +
+    "Use include=attachments to list attachments; image attachments (e.g. screenshots) can then be viewed with get_attachment. " +
     "Available since Redmine 1.0",
   inputSchema: {
     type: "object",

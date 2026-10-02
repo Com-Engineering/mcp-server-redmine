@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RedmineAttachmentSchema } from "../attachments/schema.js";
 
 // インクルード可能な値のリスト（GET /issues.json）
 export function validateListIssueIncludes(include: string): boolean {
@@ -142,4 +143,5 @@ export const RedmineIssueSchema = z.object({
   // Added based on the reference document for list_project_statuses
   allowed_statuses: z.array(AllowedStatusSchema).optional(),
   journals: z.array(JournalSchema).optional(),
+  attachments: z.array(RedmineAttachmentSchema).optional(),
 });

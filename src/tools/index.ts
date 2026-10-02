@@ -39,3 +39,8 @@ export {
   USER_UPDATE_TOOL,
   USER_DELETE_TOOL,
 } from "./users.js";
+
+// Attachment tools
+export {
+  ATTACHMENT_GET_TOOL,
+} from "./attachments.js";

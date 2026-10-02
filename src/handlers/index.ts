@@ -14,6 +14,7 @@ import { createIssuesHandlers } from "./issues.js";
 import { createProjectsHandlers } from "./projects.js";
 import { createTimeEntriesHandlers } from "./time_entries.js";
 import { createUserHandlers } from "./users.js";
+import { createAttachmentsHandlers } from "./attachments.js";
 import { formatAllowedStatuses } from "../formatters/projects.js"; // Import the new formatter
 
 // Create handler context
@@ -34,6 +35,7 @@ const issuesHandlers = createIssuesHandlers(context);
 const projectsHandlers = createProjectsHandlers(context, formatAllowedStatuses);
 const timeEntriesHandlers = createTimeEntriesHandlers(context);
 const usersHandlers = createUserHandlers(context);
+const attachmentsHandlers = createAttachmentsHandlers(context);
 
 // Create handler map
 const handlers = {
@@ -41,6 +43,7 @@ const handlers = {
   ...projectsHandlers,
   ...timeEntriesHandlers,
   ...usersHandlers,
+  ...attachmentsHandlers,
 };
 
 // Available tools list
@@ -79,6 +82,9 @@ const TOOLS: Tool[] = [
   tools.USER_CREATE_TOOL,
   tools.USER_UPDATE_TOOL,
   tools.USER_DELETE_TOOL,
+
+  // Attachment tools
+  tools.ATTACHMENT_GET_TOOL,
 ];
 
 // Initialize server

@@ -23,6 +23,17 @@ export type ToolResponse = {
 };
 
 /**
+ * Response type for tools that can return images in addition to text
+ */
+export type MediaToolResponse = {
+  content: Array<
+    | { type: "text"; text: string }
+    | { type: "image"; data: string; mimeType: string }
+  >;
+  isError: boolean;
+};
+
+/**
  * Handler context containing required dependencies
  */
 export interface HandlerContext {

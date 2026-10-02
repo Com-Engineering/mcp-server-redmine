@@ -36,6 +36,28 @@ export const singleIssueResponse = {
   issue: issueListResponse.issues[0],
 };
 
+// 添付ファイル関連のレスポンス
+export const singleAttachmentResponse = {
+  attachment: {
+    id: 5,
+    filename: "screenshot.png",
+    filesize: 10,
+    content_type: "image/png",
+    description: "Error dialog",
+    content_url: "https://test-redmine.example.com/attachments/download/5/screenshot.png",
+    thumbnail_url: "https://test-redmine.example.com/attachments/thumbnail/5",
+    author: { id: 1, name: "Test User" },
+    created_on: "2025-01-01T00:00:00Z",
+  },
+};
+
+export const singleIssueWithAttachmentsResponse = {
+  issue: {
+    ...issueListResponse.issues[0],
+    attachments: [singleAttachmentResponse.attachment],
+  },
+};
+
 // プロジェクト関連のレスポンス
 export const projectListResponse = {
   projects: [

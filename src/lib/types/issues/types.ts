@@ -1,3 +1,5 @@
+import type { RedmineAttachment } from "../attachments/types.js";
+
 // // 外部参照用のinclude可能な値のリスト（GET /issues.json）
 // const LIST_ISSUE_INCLUDES = ['attachments', 'relations'] as const;
 // type ListIssueInclude = typeof LIST_ISSUE_INCLUDES[number]; // Unused
@@ -121,6 +123,7 @@ export interface RedmineIssue {
       new_value?: string | null;
     }[];
   }[];
+  attachments?: RedmineAttachment[];
   // children?: RedmineIssue[]; // If 'children' is included. Be careful with recursion.
 
   // Added based on the reference document for list_project_statuses
