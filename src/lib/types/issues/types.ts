@@ -1,4 +1,4 @@
-import type { RedmineAttachment } from "../attachments/types.js";
+import type { RedmineAttachment, RedmineIssueUpload } from "../attachments/types.js";
 
 // // 外部参照用のinclude可能な値のリスト（GET /issues.json）
 // const LIST_ISSUE_INCLUDES = ['attachments', 'relations'] as const;
@@ -159,6 +159,7 @@ export interface RedmineIssueCreate {
 export interface RedmineIssueUpdate extends Partial<RedmineIssueCreate> {
   notes?: string; // Add notes during update
   private_notes?: boolean; // Add private notes
+  uploads?: RedmineIssueUpload[]; // Attach files uploaded via POST /uploads.json
 }
 
 // Journal (issue comment) update parameters (PUT /journals/:id.json, Redmine 5.0+)

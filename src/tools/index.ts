@@ -44,4 +44,5 @@ export {
 // Attachment tools
 export {
   ATTACHMENT_GET_TOOL,
+  ATTACHMENT_ADD_TOOL,
 } from "./attachments.js";

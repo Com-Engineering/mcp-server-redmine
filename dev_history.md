@@ -5,6 +5,47 @@
 
 ---
 
+## 2026-11-19 チケットへの添付ファイル追加に対応
+
+### 背景
+
+Playwright で画面確認したときのスクリーンショットを、テストのエビデンスとしてチケットに添付したい。
+従来は添付ファイルの取得（`get_attachment`）しかできず、追加する手段がなかった。
+
+### 変更内容
+
+- **新規ツール `add_attachment` を追加**
+  - 引数はチケット ID・ファイルの絶対パスの配列（`file_paths`）・説明（`description`、全ファイル共通）・コメント（`notes`）・`private_notes`
+  - MCP サーバーはローカルで動くため、ファイルはパスで受け取って読む（base64 で渡す方式は、大きなファイルで会話が膨らむため採らない）
+  - 処理の流れ
+    1. 全ファイルを先に確認（絶対パスか、存在するか、通常のファイルか、空でないか）。1 つでも不正なら API を呼ばずにエラー
+    2. 1 ファイルずつ `POST /uploads.json?filename=...`（`application/octet-stream`）でアップロードし、トークンを受け取る
+    3. `PUT /issues/:id.json` に `uploads`（トークン・ファイル名・content_type・説明）とコメントをまとめて送る。履歴は 1 件になる
+  - アップロードの途中で失敗した場合はチケットを更新しない（使われなかったトークンは Redmine 側で破棄される）
+  - content_type は拡張子から判定（画像・PDF・テキスト・Office 等。不明なものは `application/octet-stream`）
+  - サイズ上限は Redmine の設定に従う（超過時は Redmine の 422 エラーをそのまま返す）
+- `AttachmentsClient.uploadFile`、`RedmineUploadResult` / `RedmineIssueUpload` 型を追加し、`RedmineIssueUpdate` に `uploads` を追加
+
+### 主な変更ファイル
+
+| 種別 | ファイル |
+|---|---|
+| 変更 | `src/tools/attachments.ts`、`src/tools/index.ts`、`src/handlers/index.ts`（ツール定義・登録） |
+| 変更 | `src/handlers/attachments.ts`（`add_attachment` ハンドラ・ファイル確認・content_type 判定） |
+| 変更 | `src/lib/client/attachments.ts`（`uploadFile`） |
+| 変更 | `src/lib/types/attachments/`、`src/lib/types/issues/types.ts`（型・zod スキーマ・`uploads`） |
+
+### テスト
+
+- ユニットテストを追加（`src/handlers/__tests__/attachments/add.test.ts`）
+  - 113 件 → 127 件、全件成功
+- 実機の Redmine（6.1.0）で動作確認（テストチケット #15465）
+  - Playwright MCP で撮ったスクリーンショット（日本語ファイル名）とテキストファイルを、コメント付きで 1 回で添付。履歴 1 件に 2 ファイルが記録されることを確認
+  - 添付した画像を `get_attachment` で取得できることを確認
+  - 存在しないファイルを含む場合・相対パスの場合は何も添付されずにエラー
+
+---
+
 ## 2026-11-19 チケットコメントの編集に対応、ユーザー取得のエラーを修正
 
 ### 背景

@@ -19,3 +19,45 @@ export const ATTACHMENT_GET_TOOL: Tool = {
     required: ["id"],
   },
 };
+
+// Add attachment tool
+export const ATTACHMENT_ADD_TOOL: Tool = {
+  name: "add_attachment",
+  description:
+    "Upload local files and attach them to an existing issue, e.g. screenshots as test evidence. " +
+    "Files are read from the machine running this MCP server, so pass absolute paths. " +
+    "All files are attached in one issue update, optionally with a comment (notes). " +
+    "Every file is checked before uploading; if a file is missing or an upload fails, nothing is attached. " +
+    "Redmine rejects files larger than its configured maximum attachment size. " +
+    "Available since Redmine 1.4",
+  inputSchema: {
+    type: "object",
+    properties: {
+      issue_id: {
+        type: "number",
+        description: "ID of the issue to attach files to",
+      },
+      file_paths: {
+        type: "array",
+        description: "Absolute paths of the local files to attach. The file name is used as the attachment name",
+        items: {
+          type: "string",
+        },
+        minItems: 1,
+      },
+      description: {
+        type: "string",
+        description: "Description set on every attached file",
+      },
+      notes: {
+        type: "string",
+        description: "Comment added to the issue together with the attachments",
+      },
+      private_notes: {
+        type: "boolean",
+        description: "Set true to make the comment private",
+      },
+    },
+    required: ["issue_id", "file_paths"],
+  },
+};

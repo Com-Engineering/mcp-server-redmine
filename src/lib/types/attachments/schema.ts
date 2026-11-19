@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export const RedmineUploadResultSchema = z.object({
+  id: z.number().optional(),
+  token: z.string(),
+});
+
 export const RedmineAttachmentSchema = z.object({
   id: z.number(),
   filename: z.string(),

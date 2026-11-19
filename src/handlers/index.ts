@@ -86,6 +86,7 @@ const TOOLS: Tool[] = [
 
   // Attachment tools
   tools.ATTACHMENT_GET_TOOL,
+  tools.ATTACHMENT_ADD_TOOL,
 ];
 
 // Initialize server

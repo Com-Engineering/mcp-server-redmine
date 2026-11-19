@@ -62,6 +62,11 @@ Supports stable resources from Redmine REST API:
 - Get Image Attachments (`get_attachment`)
   - Returns the image itself so the LLM can view screenshots attached to issues
   - Find attachment IDs with `get_issue` using `include=attachments`
+- Add Attachments (`add_attachment`)
+  - Upload local files (e.g. test screenshots as evidence) and attach them to an issue
+  - Pass absolute paths; files are read on the machine running this MCP server
+  - Multiple files are attached in one issue update, optionally with a comment
+  - Every file is checked first; if a file is missing or an upload fails, nothing is attached
   - Supports PNG, JPEG, GIF and WebP up to 3.5MB; other files are rejected
   - Requires an MCP client that supports image content (e.g. Claude Desktop, Claude Code)
 

@@ -1,6 +1,6 @@
 import { BaseClient } from "./base.js";
-import { RedmineAttachment } from "../types/index.js";
-import { RedmineAttachmentSchema } from "../types/attachments/schema.js";
+import { RedmineAttachment, RedmineUploadResult } from "../types/index.js";
+import { RedmineAttachmentSchema, RedmineUploadResultSchema } from "../types/attachments/schema.js";
 
 export class AttachmentsClient extends BaseClient {
   /**
@@ -32,5 +32,25 @@ export class AttachmentsClient extends BaseClient {
     id: number
   ): Promise<{ data: Buffer; contentType: string | null }> {
     return await this.performBinaryRequest(`attachments/download/${id}`);
+  }
+
+  /**
+   * Upload file content and get a token to attach it to an issue
+   * Available since Redmine 1.4 (filename parameter and returned id since 3.4)
+   *
+   * @param data Raw file content
+   * @param filename File name sent as a hint to Redmine
+   * @returns Promise with the upload token (and attachment id)
+   */
+  async uploadFile(data: Buffer, filename: string): Promise<RedmineUploadResult> {
+    const response = await this.performRequest<{ upload: RedmineUploadResult }>(
+      `uploads.json?filename=${encodeURIComponent(filename)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/octet-stream" },
+        body: new Uint8Array(data),
+      }
+    );
+    return RedmineUploadResultSchema.parse(response.upload);
   }
 }
