@@ -25,7 +25,9 @@ export const ATTACHMENT_ADD_TOOL: Tool = {
   name: "add_attachment",
   description:
     "Upload local files and attach them to an existing issue, e.g. screenshots as test evidence. " +
-    "Files are read from the machine running this MCP server, so pass absolute paths. " +
+    "Files are read from the machine running this MCP server, so pass absolute paths; relative paths are rejected. " +
+    "For files saved by other tools (e.g. a Playwright screenshot), pass the full path of the saved file, " +
+    "including the tool's output directory. " +
     "All files are attached in one issue update, optionally with a comment (notes). " +
     "Every file is checked before uploading; if a file is missing or an upload fails, nothing is attached. " +
     "Redmine rejects files larger than its configured maximum attachment size. " +

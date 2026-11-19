@@ -229,7 +229,9 @@ export const ISSUE_UPDATE_TOOL: Tool = {
       },
       description: {
         type: "string",
-        description: "New issue description",
+        description:
+          "New issue description. Replaces the whole description, so to change only part of it, " +
+          "first get the current text with get_issue, edit it, and pass the full revised text",
       },
       category_id: {
         type: "number",
@@ -301,8 +303,9 @@ export const JOURNAL_UPDATE_TOOL: Tool = {
   name: "update_journal",
   description:
     "Edit an existing comment (journal note) on an issue. " +
-    "Replaces the whole note text. " +
-    "Journal IDs can be found with get_issue using include=journals. " +
+    "Replaces the whole note text, so to change only part of it, first get the current text " +
+    "with get_issue using include=journals, edit it, and pass the full revised text. " +
+    "Journal IDs are in the same get_issue output. " +
     "Empty notes are rejected because Redmine would delete the comment. " +
     "Requires permission to edit the note (usually its author or an admin). " +
     "Available since Redmine 5.0",
@@ -330,8 +333,11 @@ export const JOURNAL_UPDATE_TOOL: Tool = {
 export const ISSUE_DELETE_TOOL: Tool = {
   name: "delete_issue",
   description:
-    "Delete an issue permanently. " +
+    "Delete an issue permanently, including its comments and attachments. " +
     "This action cannot be undone. " +
+    "Use only when the user has explicitly asked to delete this specific issue; " +
+    "never call it on your own initiative, e.g. to clean up after a test. " +
+    "If unsure, ask the user first. " +
     "Returns success status on completion. " +
     "Available since Redmine 1.0",
   inputSchema: {
