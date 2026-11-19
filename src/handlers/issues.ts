@@ -9,6 +9,7 @@ import * as formatters from "../formatters/index.js";
 import type {
   RedmineIssueCreate,
   RedmineIssueUpdate,
+  RedmineJournalUpdate,
   IssueListParams,
 } from "../lib/types/index.js";
 // import {
@@ -275,6 +276,63 @@ export function createIssuesHandlers(context: HandlerContext) {
             {
               type: "text",
               text: `Issue #${id} updated successfully`,
+            }
+          ],
+          isError: false,
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: error instanceof Error ? error.message : String(error),
+            }
+          ],
+          isError: true,
+        };
+      }
+    },
+
+    /**
+     * Edits an existing journal (issue comment)
+     */
+    update_journal: async (args: unknown): Promise<ToolResponse> => {
+      try {
+        // Validate input structure
+        if (typeof args !== 'object' || args === null) {
+          throw new ValidationError("Arguments must be an object");
+        }
+
+        const argsObj = args as Record<string, unknown>;
+
+        // Validate required fields
+        if (!('id' in argsObj)) {
+          throw new ValidationError("id is required");
+        }
+        if (!('notes' in argsObj) || argsObj.notes === null || argsObj.notes === undefined) {
+          throw new ValidationError("notes is required");
+        }
+
+        const id = asNumber(argsObj.id);
+        const notes = String(argsObj.notes);
+
+        // Redmine deletes the journal when notes are emptied, so refuse it here
+        if (notes.trim() === "") {
+          throw new ValidationError(
+            "notes must not be empty (Redmine would delete the comment)"
+          );
+        }
+
+        const params: RedmineJournalUpdate = { notes };
+        if ('private_notes' in argsObj) params.private_notes = Boolean(argsObj.private_notes);
+
+        await client.issues.updateJournal(id, params);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Journal #${id} updated successfully`,
             }
           ],
           isError: false,

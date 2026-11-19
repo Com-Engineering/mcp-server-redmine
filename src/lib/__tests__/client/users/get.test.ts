@@ -71,6 +71,27 @@ describe("Users API (GET)", () => {
       });
     });
 
+    it("accepts users whose passwd_changed_on is null", async () => {
+      // Arrange: Redmine returns null for users who never changed their password
+      const response = {
+        ...fixtures.userListResponse,
+        users: fixtures.userListResponse.users.map((user) => ({
+          ...user,
+          passwd_changed_on: null,
+        })),
+      };
+      mockFetch.mockImplementationOnce(async () => mockResponse(response));
+
+      // Act
+      const result = await client.getUsers();
+
+      // Assert
+      expect(result.users).toHaveLength(response.users.length);
+      result.users.forEach((user) => {
+        expect(user).not.toHaveProperty("passwd_changed_on");
+      });
+    });
+
     it("handles forbidden error (non-admin access)", async () => {
       // Arrange
       mockFetch.mockImplementationOnce(async () =>

@@ -7,6 +7,7 @@ export {
   ISSUE_DELETE_TOOL,
   ISSUE_ADD_WATCHER_TOOL,
   ISSUE_REMOVE_WATCHER_TOOL,
+  JOURNAL_UPDATE_TOOL,
 } from "./issues.js";
 
 // Project-related tools

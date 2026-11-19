@@ -5,6 +5,45 @@
 
 ---
 
+## 2026-11-19 チケットコメントの編集に対応、ユーザー取得のエラーを修正
+
+### 背景
+
+- 既存のコメント（journal の notes）を直す手段がなく、誤記があっても追記で訂正するしかなかった。
+  Redmine 5.0 で追加された `PUT /journals/:id.json` を使えば編集できる。
+- `list_users` / `show_user` が、パスワードを一度も変更していないユーザー（`passwd_changed_on` が null）を含むと、
+  毎回 zod の検証エラー（`expected string, received null`）になり使えなかった。
+
+### 変更内容
+
+- **新規ツール `update_journal` を追加**
+  - journal ID と新しい本文（`notes`）を指定してコメントを書き換える。`private_notes` でプライベート設定も変更できる
+  - 本文は全体の置き換え。journal ID は `get_issue` に `include=journals` を指定して取得する（既存の出力に含まれる）
+  - 空（空白のみを含む）の本文はエラーにして API を呼ばない。Redmine は本文を空にすると、変更履歴を持たないコメントを削除するため
+  - 編集できるのは API キーのユーザーに権限があるコメントのみ（通常は本人または管理者）。権限がない・存在しない場合は Redmine のエラー（403 / 404）をそのまま返す
+- **ユーザーのスキーマで `passwd_changed_on` の null を許容**
+  - `src/lib/types/users/schema.ts` を `z.string().nullable().optional()` に変更。null のときは出力から省く（既存の処理のまま）
+
+### 主な変更ファイル
+
+| 種別 | ファイル |
+|---|---|
+| 変更 | `src/tools/issues.ts`、`src/tools/index.ts`、`src/handlers/index.ts`（ツール定義・登録、`get_issue` の説明文） |
+| 変更 | `src/handlers/issues.ts`（`update_journal` ハンドラ） |
+| 変更 | `src/lib/client/issues.ts`、`src/lib/types/issues/types.ts`（`updateJournal`・`RedmineJournalUpdate`） |
+| 変更 | `src/lib/types/users/schema.ts`、`src/lib/types/users/types.ts`（`passwd_changed_on` の null 許容） |
+
+### テスト
+
+- ユニットテストを追加（`src/lib/__tests__/client/journals/`、`src/handlers/__tests__/journals/`、`src/lib/__tests__/client/users/get.test.ts` に null のケース）
+  - 103 件 → 113 件、全件成功。null のケースは修正前に失敗することを確認
+- 実機の Redmine（6.1.0）で動作確認（テストチケット #15465）
+  - コメントを追加 → `update_journal` で書き換え → `get_issue` で新しい本文になっていることを確認
+  - 空の本文は API を呼ばずにエラー、存在しない journal ID は 404
+  - `list_users` / `show_user` がエラーなく一覧・詳細を返すことを確認
+
+---
+
 ## 2026-10-02 チケット添付画像の取得に対応
 
 ### 背景

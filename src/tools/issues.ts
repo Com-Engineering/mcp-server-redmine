@@ -296,6 +296,36 @@ export const ISSUE_UPDATE_TOOL: Tool = {
   },
 };
 
+// Update journal (issue comment) tool
+export const JOURNAL_UPDATE_TOOL: Tool = {
+  name: "update_journal",
+  description:
+    "Edit an existing comment (journal note) on an issue. " +
+    "Replaces the whole note text. " +
+    "Journal IDs can be found with get_issue using include=journals. " +
+    "Empty notes are rejected because Redmine would delete the comment. " +
+    "Requires permission to edit the note (usually its author or an admin). " +
+    "Available since Redmine 5.0",
+  inputSchema: {
+    type: "object",
+    properties: {
+      id: {
+        type: "number",
+        description: "ID of the journal to edit",
+      },
+      notes: {
+        type: "string",
+        description: "New note text that replaces the existing one",
+      },
+      private_notes: {
+        type: "boolean",
+        description: "Set true to make the note private, false to make it public",
+      },
+    },
+    required: ["id", "notes"],
+  },
+};
+
 // Delete issue tool
 export const ISSUE_DELETE_TOOL: Tool = {
   name: "delete_issue",
@@ -380,7 +410,8 @@ export const ISSUE_GET_TOOL: Tool = {
       include: {
         type: "string",
         description:
-          "Comma-separated list of associations to include (e.g., children, attachments, relations, journals, watchers)",
+          "Comma-separated list of associations to include (e.g., children, attachments, relations, journals, watchers). " +
+          "Use journals to get comment IDs for update_journal",
       },
     },
     required: ["id"],

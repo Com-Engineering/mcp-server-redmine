@@ -21,7 +21,7 @@ export const RedmineUserSchema = z.object({
   avatar_url: z.string().optional(),
   updated_on: z.string().optional(),
   admin: z.boolean().optional(),
-  passwd_changed_on: z.string().optional(),
+  passwd_changed_on: z.string().nullable().optional(),
 
   // 追加情報（オプショナル）
   custom_fields: z

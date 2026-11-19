@@ -57,6 +57,7 @@ const TOOLS: Tool[] = [
   tools.ISSUE_DELETE_TOOL,
   tools.ISSUE_ADD_WATCHER_TOOL,
   tools.ISSUE_REMOVE_WATCHER_TOOL,
+  tools.JOURNAL_UPDATE_TOOL,
 
   // Project-related tools
   tools.PROJECT_LIST_TOOL,

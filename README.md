@@ -27,6 +27,10 @@ Supports stable resources from Redmine REST API:
   - Set tracker, status, priority
   - Configure custom fields
   - Add comments
+- Edit Comments (`update_journal`, Redmine 5.0+)
+  - Replace the text of an existing comment, or change its private flag
+  - Find journal IDs with `get_issue` using `include=journals`
+  - Empty text is rejected, since Redmine would delete the comment
 - Delete Issues
 
 #### Projects

@@ -10,7 +10,7 @@ export interface RedmineUser {
   login?: string;
   mail?: string;
   last_login_on?: string | null;
-  passwd_changed_on?: string;
+  passwd_changed_on?: string | null;
   api_key?: string;
   status?: number;
   avatar_url?: string;

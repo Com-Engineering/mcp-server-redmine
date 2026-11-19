@@ -160,3 +160,9 @@ export interface RedmineIssueUpdate extends Partial<RedmineIssueCreate> {
   notes?: string; // Add notes during update
   private_notes?: boolean; // Add private notes
 }
+
+// Journal (issue comment) update parameters (PUT /journals/:id.json, Redmine 5.0+)
+export interface RedmineJournalUpdate {
+  notes: string; // Replaces the whole note text
+  private_notes?: boolean;
+}

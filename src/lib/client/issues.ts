@@ -6,6 +6,7 @@ import {
   IssueShowParams,
   RedmineIssueCreate,
   RedmineIssueUpdate,
+  RedmineJournalUpdate,
 } from "../types/index.js";
 import {
   IssueQuerySchema,
@@ -161,5 +162,22 @@ export class IssuesClient extends BaseClient {
       method: "DELETE",
     });
   }
-}
 
+  /**
+   * Update an existing journal (issue comment)
+   * Available since Redmine 5.0
+   *
+   * Redmine returns 204 No Content on success. Note that sending empty
+   * notes makes Redmine delete the journal (when it has no other details),
+   * so callers should reject empty notes unless deletion is intended.
+   *
+   * @param id Journal ID to update
+   * @param journal Update parameters
+   */
+  async updateJournal(id: number, journal: RedmineJournalUpdate): Promise<void> {
+    await this.performRequest(`journals/${id}.json`, {
+      method: "PUT",
+      body: JSON.stringify({ journal }),
+    });
+  }
+}
