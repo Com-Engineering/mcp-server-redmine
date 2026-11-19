@@ -124,6 +124,7 @@ export interface RedmineIssue {
     }[];
   }[];
   attachments?: RedmineAttachment[];
+  watchers?: { id: number; name: string }[]; // include=watchers
   // children?: RedmineIssue[]; // If 'children' is included. Be careful with recursion.
 
   // Added based on the reference document for list_project_statuses

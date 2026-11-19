@@ -31,7 +31,10 @@ Supports stable resources from Redmine REST API:
   - Replace the text of an existing comment, or change its private flag
   - Find journal IDs with `get_issue` using `include=journals`
   - Empty text is rejected, since Redmine would delete the comment
-- Delete Issues
+- Delete Issues (`delete_issue`)
+- Add/Remove Watchers (`add_issue_watcher`, `remove_issue_watcher`)
+  - Adding is confirmed by re-reading the watcher list, since Redmine silently ignores invalid users
+  - List watchers with `get_issue` using `include=watchers`
 
 #### Projects
 

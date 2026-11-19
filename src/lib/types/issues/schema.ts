@@ -134,6 +134,10 @@ export const RedmineIssueSchema = z.object({
   private_notes: z.boolean().optional(), // for journals if the user has permission
   is_private: z.boolean().optional(),
   watcher_user_ids: z.array(z.number()).optional(),
+  watchers: z.array(z.object({ // include=watchers
+    id: z.number(),
+    name: z.string(),
+  })).optional(),
   relations: z.array(RedmineRelationSchema).optional(),
   parent: z.object({ // parent issue id
     id: z.number(),

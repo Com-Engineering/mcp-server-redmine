@@ -27,7 +27,10 @@ Redmine REST API の Stable なリソースに対応しています：
   - 既存コメントの本文の書き換え、プライベート設定の変更
   - コメント（journal）の ID は `get_issue` に `include=journals` を指定して確認
   - 空の本文は受け付けない（Redmine ではコメントの削除になるため）
-- チケット削除
+- チケット削除（`delete_issue`）
+- ウォッチャーの追加・削除（`add_issue_watcher`、`remove_issue_watcher`）
+  - Redmine は無効なユーザーを黙って無視するため、追加後にウォッチャー一覧を取り直して確認する
+  - ウォッチャー一覧は `get_issue` に `include=watchers` を指定して確認
 
 #### プロジェクト関連
 

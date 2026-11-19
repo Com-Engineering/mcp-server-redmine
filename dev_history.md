@@ -5,6 +5,43 @@
 
 ---
 
+## 2026-11-19 チケット削除・ウォッチャー操作が動かない問題を修正
+
+### 背景
+
+`delete_issue` / `add_issue_watcher` / `remove_issue_watcher` はツール一覧に出ているが、
+`src/handlers/issues.ts` の末尾が `// ... rest of the handlers unchanged ...` のままでハンドラが実装されておらず、
+呼ぶと必ず `Unknown tool` になっていた（フォーク元からの不具合）。API クライアント側のメソッドは実装済みだった。
+
+### 変更内容
+
+- **3 つのハンドラを実装**（`deleteIssue` / `addWatcher` / `removeWatcher` を呼ぶ）
+- **`add_issue_watcher` は追加後に結果を確認する**
+  - Redmine は存在しない・ロック中・チケットを見る権限がないユーザーを指定しても、何もせず 204 を返す
+  - 追加後に `include=watchers` でチケットを取り直し、ウォッチャーに入っていなければエラーを返す
+- **`get_issue` の `include=watchers` でウォッチャー一覧を出力**
+  - Redmine は `watchers: [{id, name}]` を返すが、スキーマに無く検証で除去されていた。スキーマ・型・整形処理に追加
+- **ツールとハンドラの対応を検査するテストを追加**（`src/handlers/__tests__/registry.test.ts`）
+  - ツール一覧にあるのにハンドラが無い（またはその逆）ものがあれば失敗する。修正前はこの 3 つを検出することを確認
+
+### 主な変更ファイル
+
+| 種別 | ファイル |
+|---|---|
+| 変更 | `src/handlers/issues.ts`（3 ハンドラ） |
+| 変更 | `src/lib/types/issues/schema.ts`、`src/lib/types/issues/types.ts`、`src/formatters/issues.ts`（ウォッチャー一覧） |
+
+### テスト
+
+- ユニットテストを追加（`src/handlers/__tests__/issues/delete_watchers.test.ts`、`src/handlers/__tests__/registry.test.ts`）
+  - 127 件 → 141 件、全件成功
+- 実機の Redmine（6.1.0）で動作確認（テストチケット #15466〜#15468。いずれも `delete_issue` で削除済み）
+  - ウォッチャーの追加 → `get_issue` で一覧に出る → 削除 → 一覧から消える
+  - 存在しないユーザーの追加はエラー（修正前は成功と表示されていた）
+  - `delete_issue` で削除後、`get_issue` は 404。再度の削除も 404
+
+---
+
 ## 2026-11-19 チケットへの添付ファイル追加に対応
 
 ### 背景

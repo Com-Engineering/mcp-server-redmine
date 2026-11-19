@@ -84,6 +84,20 @@ function formatAttachments(attachments: RedmineAttachment[]) {
 }
 
 /**
+ * Format watchers (include=watchers)
+ */
+function formatWatchers(watchers: Array<{ id: number; name: string }>) {
+  return `
+  <watchers>
+    ${watchers.map(watcher => `
+    <watcher>
+      <id>${watcher.id}</id>
+      <name>${escapeXml(watcher.name)}</name>
+    </watcher>`).join('')}
+  </watchers>`;
+}
+
+/**
  * Format a single issue
  */
 export function formatIssue(issue: RedmineIssue): string {
@@ -110,6 +124,7 @@ export function formatIssue(issue: RedmineIssue): string {
   ${issue.custom_fields?.length ? formatCustomFields(issue.custom_fields) : ''}
   ${issue.journals?.length ? formatJournals(issue.journals) : ''}
   ${issue.attachments?.length ? formatAttachments(issue.attachments) : ''}
+  ${issue.watchers?.length ? formatWatchers(issue.watchers) : ''}
   ${issue.created_on ? `<created_on>${issue.created_on}</created_on>` : ''}
   ${issue.updated_on ? `<updated_on>${issue.updated_on}</updated_on>` : ''}
   ${issue.closed_on ? `<closed_on>${issue.closed_on}</closed_on>` : ''}

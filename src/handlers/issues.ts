@@ -350,6 +350,151 @@ export function createIssuesHandlers(context: HandlerContext) {
       }
     },
 
-    // ... rest of the handlers unchanged ...
+    /**
+     * Deletes an issue permanently
+     */
+    delete_issue: async (args: unknown): Promise<ToolResponse> => {
+      try {
+        // Validate input structure
+        if (typeof args !== 'object' || args === null) {
+          throw new ValidationError("Arguments must be an object");
+        }
+
+        const argsObj = args as Record<string, unknown>;
+
+        // Validate required fields
+        if (!('id' in argsObj)) {
+          throw new ValidationError("id is required");
+        }
+
+        const id = asNumber(argsObj.id);
+
+        await client.issues.deleteIssue(id);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Issue #${id} deleted successfully`,
+            }
+          ],
+          isError: false,
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: error instanceof Error ? error.message : String(error),
+            }
+          ],
+          isError: true,
+        };
+      }
+    },
+
+    /**
+     * Adds a user as a watcher to an issue
+     */
+    add_issue_watcher: async (args: unknown): Promise<ToolResponse> => {
+      try {
+        // Validate input structure
+        if (typeof args !== 'object' || args === null) {
+          throw new ValidationError("Arguments must be an object");
+        }
+
+        const argsObj = args as Record<string, unknown>;
+
+        // Validate required fields
+        if (!('issue_id' in argsObj)) {
+          throw new ValidationError("issue_id is required");
+        }
+        if (!('user_id' in argsObj)) {
+          throw new ValidationError("user_id is required");
+        }
+
+        const issueId = asNumber(argsObj.issue_id);
+        const userId = asNumber(argsObj.user_id);
+
+        await client.issues.addWatcher(issueId, userId);
+
+        // Redmine returns success even when the user is ignored (nonexistent,
+        // locked, or not allowed to view the issue), so confirm the result
+        const { issue } = await client.issues.getIssue(issueId, { include: "watchers" });
+        if (!issue.watchers?.some(watcher => watcher.id === userId)) {
+          throw new ValidationError(
+            `User #${userId} was not added as watcher to issue #${issueId}. ` +
+            "The user may not exist, may be locked, or may not have permission to view the issue."
+          );
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `User #${userId} added as watcher to issue #${issueId}`,
+            }
+          ],
+          isError: false,
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: error instanceof Error ? error.message : String(error),
+            }
+          ],
+          isError: true,
+        };
+      }
+    },
+
+    /**
+     * Removes a user from issue watchers
+     */
+    remove_issue_watcher: async (args: unknown): Promise<ToolResponse> => {
+      try {
+        // Validate input structure
+        if (typeof args !== 'object' || args === null) {
+          throw new ValidationError("Arguments must be an object");
+        }
+
+        const argsObj = args as Record<string, unknown>;
+
+        // Validate required fields
+        if (!('issue_id' in argsObj)) {
+          throw new ValidationError("issue_id is required");
+        }
+        if (!('user_id' in argsObj)) {
+          throw new ValidationError("user_id is required");
+        }
+
+        const issueId = asNumber(argsObj.issue_id);
+        const userId = asNumber(argsObj.user_id);
+
+        await client.issues.removeWatcher(issueId, userId);
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `User #${userId} removed from watchers of issue #${issueId}`,
+            }
+          ],
+          isError: false,
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: error instanceof Error ? error.message : String(error),
+            }
+          ],
+          isError: true,
+        };
+      }
+    },
   };
 }
